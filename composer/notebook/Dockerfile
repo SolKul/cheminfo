@@ -17,6 +17,7 @@ RUN pip install jupyter-contrib-nbextensions
 RUN jupyter contrib nbextension install --user
 RUN conda install -y rdkit
 RUN pip install pubchempy
+RUN pip install jupytext
 
 WORKDIR /home/jovyan
 

@@ -1,0 +1,12 @@
+version: '3'
+services:
+    cheminfo:
+        build: notebook
+        ports:
+            - '8889:8888'
+        volumes:
+            - "c:/FWS/02Docker/cheminfo/01WorkSpace:/home/jovyan/notebooks"
+        environment: 
+            GRANT_SUDO: "yes"
+        command: 
+            start-notebook.sh

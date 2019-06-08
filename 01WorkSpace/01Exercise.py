@@ -6,15 +6,17 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.4'
-#       jupytext_version: 1.1.2
+#       jupytext_version: 1.1.5
 #   kernelspec:
-#     display_name: Python cheminfo
+#     display_name: Python 3
 #     language: python
-#     name: cheminfo
+#     name: python3
 # ---
 
 from rdkit import rdBase
 print('rdkit version: {}'.format(rdBase.rdkitVersion))
+
+benzene.canonical_smiles
 
 # +
 import pubchempy as pcp
@@ -69,11 +71,13 @@ print(SDF_4133.decode())
 fmols=[]
 with open('./4133.sdf', 'rb') as f:
     fsuppl=Chem.ForwardSDMolSupplier(f,removeHs=False)
-    print(f.read().decode())
+#     print(f.read().decode())
     for x in fsuppl:
         if x is not None:
             print('adad')
             fmols.append(x)
+
+fmols
 
 list(fmols[0].GetPropNames())
 
@@ -83,7 +87,7 @@ with open('./04ReqSDF/PC', 'rb') as f:
     for x in fsuppl:
         if x is not None:
             fmols.append(x)
-    
+
 
 type(Chem.MolToMolBlock(fmols[0]))
 

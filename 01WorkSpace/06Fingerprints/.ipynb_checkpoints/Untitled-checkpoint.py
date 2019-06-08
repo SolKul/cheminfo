@@ -5,5 +5,5 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.4'
-#       jupytext_version: 1.1.2
+#       jupytext_version: 1.1.5
 # ---

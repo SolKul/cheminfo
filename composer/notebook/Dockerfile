@@ -17,6 +17,7 @@ RUN pip install jupyter-contrib-nbextensions
 RUN jupyter contrib nbextension install --user
 RUN conda install -y rdkit
 RUN pip install pubchempy
+RUN pip install jupytext
 
 RUN echo 'c.NotebookApp.contents_manager_class = "jupytext.TextFileContentsManager"' >> \
  /home/jovyan/.jupyter/jupyter_notebook_config.py

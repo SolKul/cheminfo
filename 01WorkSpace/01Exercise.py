@@ -16,7 +16,9 @@
 from rdkit import rdBase
 print('rdkit version: {}'.format(rdBase.rdkitVersion))
 
-benzene.canonical_smiles
+type(benzene)
+
+benzene.multipoles_3d
 
 # +
 import pubchempy as pcp

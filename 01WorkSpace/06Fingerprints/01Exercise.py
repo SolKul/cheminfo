@@ -27,11 +27,47 @@ len(mols)
 
 from rdkit.Chem import MACCSkeys as maccs
 from rdkit.Chem import DataStructs
+from rdkit.Chem import AllChem
 
 m_fps_1 = maccs.GenMACCSKeys(mols[0])
 m_fps_2 = maccs.GenMACCSKeys(mols[1])
 
-DataStructs.TanimotoSimilarity(m_fps_1, m_fps_2)
+m_mfp_1=AllChem.GetMorganFingerprintAsBitVect(mols[0], 2, 2048)
+m_mfp_2=AllChem.GetMorganFingerprintAsBitVect(mols[1], 2, 2048)
+
+DataStructs.TanimotoSimilarity(m_mfp_1, m_mfp_2)
+
+for prop in mols[0].GetPropNames():
+    print(prop)
+
+Draw.MolToImage(mols[2],legend=mols[2].GetProp('PRODUCT_NAME'))
+
+c6h6 = Chem.MolFromSmiles('c1ccccc1')
+m=mols[0]
+m.GetSubstructMatch(c6h6)
+Draw.MolToImage(m,legend=m.GetProp('PRODUCT_NAME'))
+
+import IPython.display
+
+IPython.display.display_png(m)
+
+Draw.MolToImage(c6h6, kekulize=False)
+
+from rdkit.Chem.Draw import rdMolDraw2D
+from IPython.display import SVG
+
+c6h6 = Chem.MolFromSmiles('c1ccccc1')
+Chem.Kekulize(c6h6)
+Draw.MolToImage(c6h6, kekulize=False)
+
+Chem.MolToSmiles(c6h6)
+
+mds=rdMolDraw2D.MolDraw2DSVG(200,200)
+mds.DrawMolecule(m)
+mds.FinishDrawing()
+mstr=mds.GetDrawingText()
+mstr=mstr.replace('svg:','')
+SVG(mstr)
 
 len(m_fps_1.ToBinary())*8
 
@@ -80,7 +116,7 @@ len(lipinski_mols), len(bad_mols)
 from rdkit.Chem import Draw
 
 Draw.MolsToGridImage(bad_mols, molsPerRow=3, subImgSize=(300,200),
-                     legends=[x.GetProp('PRODUCT_NUMBER') for x in bad_mols])
+                     legends=[x.GetProp('PRODUCT_NAME') for x in bad_mols])
 
 bad_mols
 

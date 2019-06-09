@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>PCCDB Project</title>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/ccdata.css" rel="stylesheet">
+
+    <!-- ChemDoodleWeb CSS -->
+    <link rel="stylesheet" href="/static/css/ChemDoodleWeb.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.10.3.custom.css" type="text/css">
+    <script src="/static/js/ChemDoodleWeb.js"></script>
+    <script type="text/javascript" src="/static/js/ChemDoodleWeb-uis.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab:100,300,400,600,700,100italic,300italic,400italic,600italic,700italic" rel="stylesheet" type="text/css">
+
+  </head>
+  <body>
+
+    <div class="container">
+
+
+        <div class="brand">
+            Public Computational Chemistry Database Project<br/>
+        </div>
+
+       <!-- Navigation -->
+       <nav class="navbar navbar-default" role="navigation">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <!-- navbar-brand is hidden on larger screens, but visible when the menu is collapsed -->
+                    <a class="navbar-brand" href="index.html">PCCDB project</a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="/">Home</a>
+                        </li>
+                        <li>
+                            <a href="/#about_us">About us</a>
+                        </li>
+                        <li>
+                            <a href="/news">News</a>
+                        </li>
+                        <li>
+                            <a href="/#pubchemqc">PubChemQC</a>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" >Search Data<span class="caret" ></span></a>
+                            <ul class="dropdown-menu">
+                               <li> <a href="/#search_data"      class="text-center">About</a></li>
+                               <li> <a href="/search_pubchemqc/query"    class="text-center">Query</a></li>
+                               <li> <a href="/search_pubchemqc/explain_web_api"  class="text-center">View &amp; API </a></li>
+                            </ul> 
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown">Tools<span class="caret" ></span></a>
+                            <ul class="dropdown-menu">
+                               <li> <a href="/tools/mol_viewer"        class="text-center">mol viewer</a></li>
+                               <li> <a href="/tools/convert_2D_mol"    class="text-center">convert to 2D mol</a></li>
+                               <li> <a href="/tools/convert_3D_mol"    class="text-center">convert to 3D mol</a></li>
+                               <li> <a href="/tools/create_tautomers"  class="text-center">create tautomers</a></li>
+                               <li> <a href="/tools/mol_synthesis"     class="text-center">mol synthesis</a></li>
+                               <li> <a href="/tools/cal_properties"    class="text-center">cal properties</a></li>
+                               <li> <a href="/tools/create_qc_infiles" class="text-center">create QC in-files</a></li>
+                               <li> <a href="/tools/search_csv"        class="text-center">search from CSV</a></li>
+                            </ul> 
+                        </li>
+
+                        <!--
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown">Downloads<span class="caret" ></span></a>
+                            <ul class="dropdown-menu">
+                               <li> <a href="/downloads#download-1" class="text-center">Download-1</a></li>
+                               <li> <a href="/downloads#download-2" class="text-center">Download-2</a></li>
+                            </ul> 
+                        </li>
+                        -->
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container -->
+        </nav>
+
+        
+
+    <script type="text/javascript" src="/static/js/tshima_lib.js?1558258334"></script>
+
+     <div class="row">
+        <div class="box">
+        <hr>
+        <h2 class="intro-text text-center" style="text-transform:none;">
+            <strong>Search Data for PubChemQC <br/>- Query -</strong>
+        </h2>
+        <hr>
+        <form  action="/search_pubchemqc/query" method="post" class="form-horizontal">
+            <label class="control-label"><h4>Search Range</h4></label>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">Start PCCDB-ID, Limit:</label> 
+                <div   class="form-inline   col-sm-8">
+                    <input type="text" name="start_cid" value=1 class="form-control input-sm" size=30>
+                    <input type="text" name="limit" value=20 class="form-control input-sm"    size=30>
+                </div>
+            </div>
+            <label class="control-label"><h4>Search condition</h4></label>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_gap" class="checkbox-inline">HOMO-LUMO gap:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="gap_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="gap_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_homo" class="checkbox-inline">HOMO energy:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="homo_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="homo_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_lumo" class="checkbox-inline">LUMO energy:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="lumo_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="lumo_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_dipole" class="checkbox-inline">Dipole moment:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="dipole_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="dipole_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_excit_1st" class="checkbox-inline">Excitation energy (1st):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="excit_1st_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="excit_1st_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_osci_1st" class="checkbox-inline">Oscillator strength (1st):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="osci_1st_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="osci_1st_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_excit_2nd" class="checkbox-inline">Excitation energy (2nd):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="excit_2nd_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="excit_2nd_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_osci_2nd" class="checkbox-inline">Oscillator strength (2nd):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="osci_2nd_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="osci_2nd_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_excit_3rd" class="checkbox-inline">Excitation energy (3rd):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="excit_3rd_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="excit_3rd_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_osci_3rd" class="checkbox-inline">Oscillator strength (3rd):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="osci_3rd_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="osci_3rd_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_excit_4th" class="checkbox-inline">Excitation energy (4th):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="excit_4th_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="excit_4th_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_osci_4th" class="checkbox-inline">Oscillator strength (4th):
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="osci_4th_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="osci_4th_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+
+            <hr>
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_elements" class="checkbox-inline">Select elements:
+                </label>
+                <div class="text-left col-sm-8 form-control-static">
+                    <input type="checkbox" name="C"  class="checkbox-inline" checked><strong>C</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" name="N"  class="checkbox-inline" checked><strong>N</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" name="O"  class="checkbox-inline" checked><strong>O</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" name="S"  class="checkbox-inline"><strong>S</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" name="P"  class="checkbox-inline"><strong>P</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" name="Si" class="checkbox-inline"><strong>Si</strong>&nbsp;&nbsp;&nbsp;
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_string_match" class="checkbox-inline">String match:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <div class="input-group">
+                        <input type="text" id="input_smiles_string_match" name="smiles_match" class="form-control input-sm" placeholder="SMILES" size=55><br class="hidden-xs" />
+                        <span class="input-group-btn">
+                            <button type="button" id="editor_btn" class="btn btn-default input-sm" data-toggle="modal" data-target="#myModal" data-whatever="match">Editer</button>
+                        </span>
+                    </div>
+                    <br class="hidden-xs" />
+                    <input type="radio" name="select_match"  value="partial"  class="radio-inline" checked><strong>partial</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="select_match"  value="perfect"  class="radio-inline"><strong>perfect</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="select_match"  value="forward"  class="radio-inline"><strong>forward</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="select_match"  value="backward" class="radio-inline"><strong>backward</strong>&nbsp;&nbsp;&nbsp;
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_similarity_search" class="checkbox-inline">Similarity search:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <div class="input-group">
+                        <input type="text"  id="input_smiles_similarity_search" name="smiles_similarity_search"    class="form-control input-sm" placeholder="SMILES" size=55><br class="hidden-xs" />
+                        <span class="input-group-btn">
+                            <button type="button" id="editor_btn" class="btn btn-default input-sm" data-toggle="modal" data-target="#myModal" data-whatever="similarity">Editer</button>
+                        </span>
+                    </div>
+                    <br class="hidden-xs" />
+                    <input type="text"   name="threshold_similarity_search" class="form-control input-sm" placeholder="threshold" size=8>
+                    <input type="radio"  name="select_similarity_search"    value="maccs" class="radio-inline" checked><strong>MACCS</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="radio"  name="select_similarity_search"    value="topological_1024" class="radio-inline"><strong>Topological;</strong>&nbsp;&nbsp;&nbsp;
+                    <input type="radio"  name="select_similarity_search"    value="both"         class="radio-inline"><strong>both</strong>&nbsp;&nbsp;&nbsp;
+                </div>
+            </div>
+            <hr>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_hba" class="checkbox-inline">Num. of H bond acceptor:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="hba_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="hba_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_hbd" class="checkbox-inline">Num. of H hond donor:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="hbd_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="hbd_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_tpsa" class="checkbox-inline">TPSA:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="tpsa_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="tpsa_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_logp" class="checkbox-inline">logP:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="logp_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="logp_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_mr" class="checkbox-inline">Molecular refractivity:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="mr_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="mr_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+            <div class="form-group ">
+                <label class="control-label col-sm-4">
+                    <input type="checkbox" name="check_mp" class="checkbox-inline">Melting point:
+                </label>
+                <div class="form-inline     col-sm-8">
+                    <input type="text" name="mp_l" class="form-control input-sm" placeholder="lower" size=30>
+                    <input type="text" name="mp_h" class="form-control input-sm" placeholder="upper" size=30>
+                </div>
+            </div>
+
+            <br/>
+
+            <div class="form-group">
+               <div   class="text-right   col-sm-4">
+                   <input type="submit" value="Submit" class="btn btn-primary btn-sm"/>
+                   <input type="reset"  value="Reset"  class="btn btn-default btn-sm"/>
+                </div>
+                <label class="control-label col-sm-8"></label>
+            </div>
+        </form>
+
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="box">
+            <p>
+            <ul class="list-group">
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     Molecules are searched from the number specified by "Start PCCDB-ID" as the starting point.</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     The number specified by "Limit" gives the upper limit of molecular data (search results) in the query.</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     At present, the maximize number of "Limit" is <strong>2,000</strong> molecules. 
+                    (This restriction will be relaxed by sever augmentations in the near future.)</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     To set a condition, it is necessary to mark a checkbox.</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     The input forms followed by each checkbox indicate "lower" and "upper" bounds for the specified property.
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     Here, the range of HOMO-LUMO gap and energies are specified in <strong>eV</strong>.</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     If the lower (upper) form is not input in the submission, no lower (upper) bound is set in the search.</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     The "Oscillator strength" entry can be used to specify the photon absorption of the excited state. 
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     To search molecules containing specified elements, please check the "Select elements" checkbox, and choose target elements.
+                     At that time, if a element is unchecked, our system searches molecules which do not contain the element.</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     If "String match" is checked, molecules are searched based on the SMILES representations registered in PubChem.</li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     The SMILES representation may not be uniquely determined even for the same molecular (sub)structure.
+                     To find molecules, the same SMILES representation used in PubChem may give better results in molecule searches. 
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     For string matching, we convert the inputed SMILES representation to an internal representation, if possible. 
+                     Thus, the input string is not always used as it is. While the string matching is strict, and has many restrictions,
+                     the similarity search may have more flexibility to find molecules.
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     <a href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</a> provides a service to create the SMILES representation from the 2D (sub)structure of molecules. 
+                     It may help your searches. </li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     By checking "Similarity search", molecules can be searched based on the Tanimoto similarity with the molecular fingerprint techniques.</li> 
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     The MACCS (166 bits) and Topological (1024 bits) fingerprints are available, which are implemented in <a href="http://openbabel.org/wiki/Main_Page">Open Babel</a>
+                      and <a href="http://www.rdkit.org/">RDkit</a>, respectively.
+                     If the "both" radio button is checked, fingerprints that concatenate those are used.</li> 
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     If no value is specified for "threshold", a default value of 0.3 is used in the similarity search. 
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     The similarity search takes a lot of sever resources. Please use it carefully. </li>
+                <li class="list-group-item" style="background-color:rgba(255,255,255,0.4)">
+                     The number of hydrogen bond acceptor/donor (HBA/HBD), TPSA, logP, molecular refractivity (MR), and melting point (MP) were calculated 
+                     by using <a href="http://openbabel.org/wiki/Main_Page">Open Babel</a>.</li>
+            </ul>
+            </p>
+        </div>
+    </div>
+
+    <script>
+            var g_sel_btn = "not called";
+       
+            function get_smiles_from_sk(in_sk){
+                var tmp_mol = in_sk.getMolecule();
+                var molFile = ChemDoodle.writeMOL(tmp_mol);
+                var send_data   = {"MOL":molFile};
+                var send_data_s = JSON.stringify(send_data);
+                $.ajax({
+                    crossDomain : true,
+                    type        : "post",
+                    url         : "http://160.16.122.144/tools/get_smiles_from_MOL",
+                    contentType : "application/json",
+                    dataType    : "JSON",
+                    data        : send_data_s,
+                    success     : function(data){
+                    var ret_str = JSON.stringify(data);
+                    var ret_smiles = data["smiles"]
+                    $("#show_modal_smiles").text(ret_smiles);
+                    if(g_sel_btn=="similarity"){
+                        $("#input_smiles_similarity_search").val(ret_smiles); 
+                    }
+                    if(g_sel_btn=="match"){
+                        $("#input_smiles_string_match").val(ret_smiles); 
+                    }
+                }
+                });
+            }
+
+            function get_h_w(){
+                var size = $(window).width();
+                var h  = 560;
+                var w  = 300;
+                if(size<768){
+                    h=0.85*size;
+                    w=0.85*w;
+                }
+                return {"h":h, "w":w};
+            }
+
+            function get_sk(){
+                var h_w   = get_h_w();
+                var tmp_h = h_w["h"];
+                var tmp_w = h_w["w"];
+                var sketcher = new ChemDoodle.SketcherCanvas('sketcher', tmp_h, tmp_w, {useServices:false, oneMolecule:true, resizable:true });
+                return sketcher;
+            }
+    </script>
+
+
+    <div class="modal" id="myModal" >
+        <div class="modal-dialog" >
+            <div class="modal-content">
+                <div class="modal-body">
+                    <script>
+                         var sk = get_sk(); 
+                         $(window).on("resize", function(){
+                             var h_w   = get_h_w();
+                             var tmp_h = h_w["h"];
+                             var tmp_w = h_w["w"];
+                             sk.resize(tmp_h, tmp_w);
+                         });
+                     </script><br/>
+                     <strong>SMILES:</strong>&nbsp;&nbsp;&nbsp;
+                     <span id="show_modal_smiles"></span><br/><br/>   
+                     <button type="button" class="btn btn-default" onclick="get_smiles_from_sk(sk)">convert</button>
+                     <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+                 </div>
+
+             </div>
+         </div>
+     </div>
+     <script>
+            $("#myModal").draggable({
+                handle: ".modal-body"
+            });
+            $("#myModal").on("show.bs.modal", function(event){
+                var btn   = $(event.relatedTarget);
+                g_sel_btn = btn.data("whatever");
+            });
+    </script>
+                    
+
+
+
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <p>Copyright &copy; PCCDB Project</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="/static/js/bootstrap.min.js"></script>
+         
+        <script src="/static/js/sorttable.js"></script>
+
+
+        <!-- Script to Activate the Carousel -->
+        <script>
+        $('.carousel').carousel({
+            interval: 5000 //changes the speed
+        })
+        </script>
+
+        <script>
+            $('.dropdown').on('mouseenter mouseleave click tap', function() {
+                $(this).toggleClass("open");
+            });
+        </script>
+
+
+    </div>
+
+  </body>
+</html>

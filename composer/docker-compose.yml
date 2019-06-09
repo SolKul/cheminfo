@@ -1,9 +1,9 @@
 version: '3'
 services:
-    cheminfo:
+    jupytertest:
         build: notebook
         ports:
-            - '8889:8888'
+            - '8890:8888'
         volumes:
             - "c:/FWS/02Docker/cheminfo/01WorkSpace:/home/jovyan/notebooks"
         environment: 

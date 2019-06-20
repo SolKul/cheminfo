@@ -90,20 +90,11 @@ for i in range(1,11):
     morgan_test_acc.append(test_acc)
 
 import threading
+from sklearn.neighbors import KNeighborsClassifier
 
 
-# +
-def calcknn1():
-    knn = KNeighborsClassifier(n_neighbors=1)
-    knn.fit(X_train, y_train)
-    train_acc = knn.score(X_train, y_train)
-    test_acc = knn.score(X_test, y_test)
-    print('test accuracy with k={}: {:.3f}'.format(i, test_acc))
-    morgan_train_acc.append(train_acc)
-    morgan_test_acc.append(test_acc)
-    
-def calcknn2():
-    knn = KNeighborsClassifier(n_neighbors=2)
+def calcknn(i):
+    knn = KNeighborsClassifier(n_neighbors=i)
     knn.fit(X_train, y_train)
     train_acc = knn.score(X_train, y_train)
     test_acc = knn.score(X_test, y_test)
@@ -111,14 +102,29 @@ def calcknn2():
     morgan_train_acc.append(train_acc)
     morgan_test_acc.append(test_acc)
 
-
-# -
 
 thread_1 = threading.Thread(target=calcknn1)
 thread_2 = threading.Thread(target=calcknn2)
 
 thread_1.start()
 thread_2.start()
+
+import concurrent.futures
+
+futures=[]
+executor = concurrent.futures.ProcessPoolExecutor(max_workers=2)
+for i in range(1,4):
+    futures.append(executor.submit(calcknn,i))
+
+futures[1].running()
+
+f=concurrent.futures.Future()
+
+executor.
+
+executor.done()
+
+pow(2,3)
 
 np.sum(df_AMES_d.isnull())
 

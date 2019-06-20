@@ -95,6 +95,12 @@ type(Chem.MolToMolBlock(fmols[0]))
 
 print(Chem.MolToMolBlock(fmols[0]))
 
+from rdkit.Chem.Draw import IPythonConsole
+
+import IPythonConsole
+
+IPythonConsole.drawMol3D(fmols[0])
+
 import py3Dmol as p3d
 
 view = p3d.view(width=680, height=250, query='cid:5462328', viewergrid=(1,3), linked=False)

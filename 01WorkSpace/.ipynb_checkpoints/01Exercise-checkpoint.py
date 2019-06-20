@@ -6,15 +6,19 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.4'
-#       jupytext_version: 1.1.2
+#       jupytext_version: 1.1.5
 #   kernelspec:
-#     display_name: Python cheminfo
+#     display_name: Python 3
 #     language: python
-#     name: cheminfo
+#     name: python3
 # ---
 
 from rdkit import rdBase
 print('rdkit version: {}'.format(rdBase.rdkitVersion))
+
+type(benzene)
+
+benzene.multipoles_3d
 
 # +
 import pubchempy as pcp
@@ -66,17 +70,36 @@ with open('./4133.sdf', 'rb') as f:
 
 print(SDF_4133.decode())
 
+fmols=[]
 with open('./4133.sdf', 'rb') as f:
+    fsuppl=Chem.ForwardSDMolSupplier(f,removeHs=False)
+#     print(f.read().decode())
+    for x in fsuppl:
+        if x is not None:
+            print('adad')
+            fmols.append(x)
+
+fmols
+
+list(fmols[0].GetPropNames())
+
+with open('./04ReqSDF/PC', 'rb') as f:
     fsuppl=Chem.ForwardSDMolSupplier(f,removeHs=False)
     fmols=[]
     for x in fsuppl:
         if x is not None:
             fmols.append(x)
-    
+
 
 type(Chem.MolToMolBlock(fmols[0]))
 
 print(Chem.MolToMolBlock(fmols[0]))
+
+from rdkit.Chem.Draw import IPythonConsole
+
+import IPythonConsole
+
+IPythonConsole.drawMol3D(fmols[0])
 
 import py3Dmol as p3d
 
@@ -136,3 +159,58 @@ view.addModel(MAsdf,'sdf')
 view.setStyle({'sphere': {'linewidth': 5}}, viewer=(0,0))
 view.zoomTo()
 view.show()
+
+QcDir='./02MSqc/'
+
+import os
+
+L_FP=[]
+for f in os.listdir(QcDir):
+    D_mol={}
+    if f.endswith('.mol'):
+        D_mol['FN']=f
+        D_mol['RP']=os.path.join(QcDir,f)
+        L_FP.append(D_mol)
+
+L_FP
+
+L_mol=[]
+for D_mol in L_FP:
+    with open(D_mol['RP'],'rb') as f:
+        L_mol.append(f.read().decode())
+
+view = p3d.view(width=300, height=250, linked=False)
+view.addModel(L_mol[0],'sdf')
+view.setStyle({'sphere': {'linewidth': 5}}, viewer=(0,0))
+view.zoomTo()
+view.show()
+
+L_mol=[]
+for D_mol in L_FP:
+    L_mol.append(Chem.MolFromMolFile(D_mol['RP']))
+
+Chem.MolFromMolFile('./02MSqc/pccdbid1.mol')
+
+MSs[0]
+
+Chem.MolToMolFile(MSs[0],'./MS0.mol')
+
+Chem.MolFromMolFile('./MS0.mol')
+
+supl=Chem.SDMolSupplier('./02MSqc/CID10237.sdf')
+for x in supl:
+    print(x)
+
+with open('./02MSqc/pccdbid1.sdf') as f:
+#     print(f.read())
+    fsuppl = Chem.ForwardSDMolSupplier(f)
+#     fmols = [x for x in fsuppl if x is not None]
+# len(fmols)
+
+for x in fsuppl:
+    print(x)
+
+for mol in L_mol[0]:
+    print(mol)
+
+Draw.MolToImage(L_mol[0])

@@ -109,14 +109,16 @@ thread_2 = threading.Thread(target=calcknn2)
 thread_1.start()
 thread_2.start()
 
+morgan_fp.shape
+
 import concurrent.futures
 
 futures=[]
-executor = concurrent.futures.ProcessPoolExecutor(max_workers=2)
-for i in range(1,4):
+executor = concurrent.futures.ProcessPoolExecutor(max_workers=8)
+for i in range(5,8):
     futures.append(executor.submit(calcknn,i))
 
-futures[1].running()
+futures[7].running()
 
 f=concurrent.futures.Future()
 

@@ -14,13 +14,6 @@
 # ---
 
 # +
-import os
-import os.path
-import sys
-
-p_mod=os.path.join(os.environ['HOME'],'notebooks/99MyModules')
-sys.path.append(p_mod)
-
 ## 1. ライブラリのインポート
 from rdkit import rdBase, Chem
 from rdkit.Chem import AllChem, Draw, PandasTools, Descriptors
@@ -31,11 +24,22 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 print(rdBase.rdkitVersion) # 2019.03.2
-# -
+
+# +
+import os
+import os.path
+import sys
+
+p_mod=os.path.join(os.environ['HOME'],'notebooks/99MyModules')
+sys.path.append(p_mod)
 
 import descarray as da
 
-df_AMES=pd.read_csv('./ci900161g_si_001/smiles_cas_N6512.smi',sep='\t', header=None)
+DataDir=os.path.join(os.environ['HOME'],'notebooks/50Data/')
+# -
+
+AmesF=DataDir+'ci900161g_si_001/smiles_cas_N6512.smi'
+df_AMES=pd.read_csv(AmesF,sep='\t', header=None)
 df_AMES.columns = ['smiles', 'CAS_NO', 'activity']
 da.descDf(df_AMES)
 
@@ -46,6 +50,8 @@ da.descDf(df_AMES)
 df_AMES_d=df_AMES.dropna()
 df_AMES_d=df_AMES_d.assign(mw=df_AMES_d['ROMol'].map(Descriptors.MolWt))#.map(Descriptors.MolWt)
 da.descDf(df_AMES_d)
+
+df_AMES_d.loc[:,['ROMol']].iloc[0]
 
 print('全部で%d'%len(df_AMES_d)) # 6506
 n_neg=np.sum(df_AMES_d.activity == 0)

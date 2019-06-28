@@ -48,18 +48,43 @@ for i in range(N_lim):
     view.zoomTo()
 view.show()
 
+print(L_sdf[0]['sdf'])
+
 # +
-TarDir2='./SDF_R/'
+DataDir=os.path.join(os.environ['HOME'],'notebooks/50Data/')
+TarDir=DataDir+'SDF_R/'
 
 for i in range(len(L_sdf)):
-    NRP=TarDir2+os.path.splitext(L_sdf[i]['FN'])[0]+'_NS.sdf'
+    NRP=TarDir+os.path.splitext(L_sdf[i]['FN'])[0]+'_NS.sdf'
     with open(NRP, mode='w') as f:
-        f.write(L_sdf[i]['sdf'].replace(' \n','\n'))
+        f.write(L_sdf[i]['sdf'].replace(' \r','\r'))
 # -
 
+L_FP=[]
+for f in os.listdir(TarDir):
+    D_sdf={}
+    if f.endswith('.sdf'):
+        D_sdf['FN']=f
+        D_sdf['RP']=os.path.join(TarDir,f)
+        L_FP.append(D_sdf)
+len(L_FP)
+
+D_sdf=L_FP[3]
+with open(D_sdf['RP'],'rb') as f:
+#     print(f.read())
+    suppl=Chem.ForwardSDMolSupplier(f)
+    for m in suppl:
+#         print(1)
+        if m is not None:
+            print(list(m.GetPropNames()))
+
 #改行前の空白があるとRdkitで読み込めないので削除
-SDF_R=L_sdf[1].replace(' \n','\n')
+SDF_R=L_sdf[1]['sdf'].replace(' \r','\r')
 # print(L_sdf[0].replace(' \n','\n'))
+
+SDF_R
+
+L_sdf[1]['sdf']
 
 testF='./PCCID0001_R.sdf'
 with open(testF, mode='w') as f:

@@ -5,11 +5,11 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.4'
-#       jupytext_version: 1.1.2
+#       jupytext_version: 1.1.5
 #   kernelspec:
-#     display_name: Python scrap
+#     display_name: Python 3
 #     language: python
-#     name: scrap
+#     name: python3
 # ---
 
 import requests

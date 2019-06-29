@@ -34,9 +34,15 @@ p_mod=os.path.join(os.environ['HOME'],'notebooks/99MyModules')
 sys.path.append(p_mod)
 
 import descarray as da
+
+DataDir=os.path.join(os.environ['HOME'],'notebooks/50Data/')
 # -
 
-DataDir='../50Data/'
-df_AMES=pd.read_csv('./ci900161g_si_001/smiles_cas_N6512.smi',sep='\t', header=None)
+df_AMES=pd.read_csv(DataDir+'ci900161g_si_001/smiles_cas_N6512.smi',sep='\t', header=None)
 df_AMES.columns = ['smiles', 'CAS_NO', 'activity']
 da.descDf(df_AMES)
+
+#PCCDBのsdfをロード
+SDFFN=DataDir+'PCCDB.sdf'
+df_PCCDB=PandasTools.LoadSDF(SDFFN)
+da.descDf(df_PCCDB)

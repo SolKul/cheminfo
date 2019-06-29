@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -12,21 +13,51 @@
 #     name: python3
 # ---
 
+# # PCCDBからSDFをダウンロード  
+# PCCDBからjson形式でSDFがダウンロード可能  
+
+# +
 import requests
 import pandas as pd
 import json
 import time
+import os
+import os.path
+import sys
 
-# +
-df_pccd=pd.read_csv('./search_result_ids.csv')
-RowPC=1
+#自作モジュールのインポート
+p_mod=os.path.join(os.environ['HOME'],'notebooks/99MyModules')
+sys.path.append(p_mod)
+import descarray as da
+
+#保存先の設定
+DataDir=os.path.join(os.environ['HOME'],'notebooks/50Data/')
+# -
+
+df_id=pd.read_pickle('./df_pccdb_id.pkl')
+da.descDf(df_id)
 
 UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
 headers = {"User-Agent": UA}
-# -
 
-for RowPC in range(100,1000):
-    PC_id=int(df_pccd.iloc[RowPC,0])
+PC_id=int(df_id.iloc[RowPC,1])
+PCCDURL='http://pccdb.org/search_pubchemqc/get_sdf/ver0.2/'
+TarURL=PCCDURL+str(PC_id)
+resp = requests.get(TarURL, timeout=120, headers=headers)
+
+sdf_txt=resp.text
+di_sdf=json.loads(sdf_txt)
+print([x for x in di_sdf])
+TarDir=DataDir+'PCCDB_SDF/'
+FN='PCCID_{:0=8}'.format(PC_id)
+FP=TarDir+FN+'.sdf'
+with open(FP, mode='w') as f:
+    f.write(di_sdf['sdf'])
+
+for RowPC in range(0,2000):
+    #RowPCは何行目かを表す。
+    #PC_idはPCCDBのid
+    PC_id=int(df_id.iloc[RowPC,1])
 
     PCCDURL='http://pccdb.org/search_pubchemqc/get_sdf/ver0.2/'
     TarURL=PCCDURL+str(PC_id)
@@ -35,11 +66,15 @@ for RowPC in range(100,1000):
         time.sleep(60)
         resp = requests.get(TarURL, timeout=120, headers=headers)
 
+        #requestsしたtext、これはjson形式になっている
+        #属性はpcccdb_idとsdfの2つ
+        #json.loadsすると辞書型に変換される。
         sdf_txt=resp.text
         di_sdf=json.loads(sdf_txt)
         print([x for x in di_sdf])
 
-        TarDir='./SDF/'
+        #ファイル名とファイルパスを作成
+        TarDir=DataDir+'PCCDB_SDF/'
         FN='PCCID_{:0=8}'.format(PC_id)
         FP=TarDir+FN+'.sdf'
         print(FP)

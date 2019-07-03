@@ -40,8 +40,7 @@ da.descDf(df_id)
 UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36'
 headers = {"User-Agent": UA}
 
-PC_id
-
+RowPC=0
 PC_id=int(df_id.iloc[RowPC,1])
 PCCDURL='http://pccdb.org/search_pubchemqc/get_sdf/ver0.2/'
 TarURL=PCCDURL+str(PC_id)
@@ -56,7 +55,7 @@ FP=TarDir+FN+'.sdf'
 with open(FP, mode='w') as f:
     f.write(di_sdf['sdf'])
 
-for RowPC in range(0,2000):
+for RowPC in range(47984):
     #RowPCは何行目かを表す。
     #PC_idはPCCDBのid
     PC_id=int(df_id.iloc[RowPC,1])

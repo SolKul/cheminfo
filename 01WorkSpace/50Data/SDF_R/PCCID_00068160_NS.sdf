@@ -1,0 +1,96 @@
+PCCDB-ID:  68160
+public computational chemistry database (PCCDB) project, http://pccdb.org
+
+  6  5  0  0  0  0  0  0  0  0999 V2000
+    1.3255   -0.0852    0.1366 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.6087   -1.7627    0.1593 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.4861   -0.0671    0.9459 N   0  0  0  0  0  0  0  0  0  0  0  0
+    5.4746   -1.7077    0.9383 N   0  0  0  0  0  0  0  0  0  0  0  0
+    2.5191   -0.0054   -1.0774 S   0  0  0  0  0  0  0  0  0  0  0  0
+    3.3754   -1.9524   -1.0016 S   0  0  0  0  0  0  0  0  0  0  0  0
+  1  3  3  0  0  0  0
+  2  4  3  0  0  0  0
+  5  6  1  0  0  0  0
+  5  1  1  0  0  0  0
+  6  2  1  0  0  0  0
+M  END
+>  <HBA>
+4
+
+>  <HBD>
+0
+
+>  <TPSA>
+98.18
+
+>  <cid>
+68160
+
+>  <dipole>
+3.26
+
+>  <excitation_energy_1>
+3.526
+
+>  <excitation_energy_2>
+3.564
+
+>  <excitation_energy_3>
+5.329
+
+>  <excitation_energy_4>
+5.896
+
+>  <homo_energy>
+-8.493
+
+>  <homo_lumo_gap>
+4.702
+
+>  <logP>
+1.33
+
+>  <lumo_energy>
+-3.791
+
+>  <melting_point>
+61.84
+
+>  <molecular_refractivity>
+26.41
+
+>  <oscillator_strength_1>
+0.0014
+
+>  <oscillator_strength_2>
+0.0007
+
+>  <oscillator_strength_3>
+0.176
+
+>  <oscillator_strength_4>
+0.0034
+
+>  <open_babel_can_smiles>
+N#CSSC#N
+
+>  <mulliken_charges>
+6
+1   0.137295
+2   0.137275
+3   -0.335441
+4   -0.335442
+5   0.198157
+6   0.198157
+
+>  <lowdin_charges>
+6
+1   -0.171042
+2   -0.170956
+3   -0.067331
+4   -0.067368
+5   0.238328
+6   0.238369
+
+$$$$
+

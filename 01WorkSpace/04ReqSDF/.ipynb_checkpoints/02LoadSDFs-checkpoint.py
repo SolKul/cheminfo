@@ -13,13 +13,34 @@
 #     name: python3
 # ---
 
-import pubchempy as pcp
-from rdkit import Chem
-import py3Dmol as p3d
-import os
-from rdkit.Chem import AllChem, Draw
+# +
+## 1. ライブラリのインポート
+from rdkit import rdBase, Chem
+from rdkit.Chem import AllChem, Draw, PandasTools, Descriptors
+ 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+print(rdBase.rdkitVersion) # 2019.03.2
 
-TarDir='./SDF/'
+# +
+import os
+import os.path
+import sys
+
+#自作モジュールディレクトリをパスに追加
+p_mod=os.path.join(os.environ['HOME'],'notebooks/99MyModules')
+sys.path.append(p_mod)
+
+import descarray as da
+
+#データディレクトリ
+DataDir=os.path.join(os.environ['HOME'],'notebooks/50Data/')
+# -
+
+TarDir=DataDir+'PCCDB_SDF/'
 
 L_FP=[]
 for f in os.listdir(TarDir):
@@ -38,6 +59,7 @@ for D_sdf in L_FP:
         L_sdf.append(D_sdf_all)
 len(L_sdf)
 
+import py3Dmol as p3d
 N_lim=10
 L_mol=list(range(40,50))
 view = p3d.view(width=300, height=250*N_lim, linked=False,viewergrid=(N_lim,1))
@@ -50,22 +72,21 @@ view.show()
 
 print(L_sdf[0]['sdf'])
 
-# +
-DataDir=os.path.join(os.environ['HOME'],'notebooks/50Data/')
-TarDir=DataDir+'SDF_R/'
+R_TarDir=DataDir+'SDF_R/'
+
+L_sdf[i]['sdf'].replace(' \n','\n')
 
 for i in range(len(L_sdf)):
-    NRP=TarDir+os.path.splitext(L_sdf[i]['FN'])[0]+'_NS.sdf'
+    NRP=R_TarDir+os.path.splitext(L_sdf[i]['FN'])[0]+'_NS.sdf'
     with open(NRP, mode='w') as f:
-        f.write(L_sdf[i]['sdf'].replace(' \r','\r'))
-# -
+        f.write(L_sdf[i]['sdf'].replace(' \n','\n'))
 
 L_FP=[]
-for f in os.listdir(TarDir):
+for f in os.listdir(R_TarDir):
     D_sdf={}
     if f.endswith('.sdf'):
         D_sdf['FN']=f
-        D_sdf['RP']=os.path.join(TarDir,f)
+        D_sdf['RP']=os.path.join(R_TarDir,f)
         L_FP.append(D_sdf)
 len(L_FP)
 

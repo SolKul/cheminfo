@@ -76,7 +76,7 @@ writer.close()
 df_PCCDB=PandasTools.LoadSDF(WriFP)
 da.descDf(df_PCCDB)
 
-df_PCCDB
+Chem.MolToCXSmiles(df_PCCDB['ROMol'][3],isomericSmiles=False)
 
 print(Chem.MolToMolBlock(L_mol[0]))
 

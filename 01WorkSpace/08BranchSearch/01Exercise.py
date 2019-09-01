@@ -20,9 +20,31 @@ r32=Chem.AddHs(Chem.MolFromSmiles('C(F)F'))
 display(Draw.MolToImage(r32))
 print(Chem.MolToMolBlock(r32))
 
-MthRad=Chem.AddHs(Chem.MolFromSmiles('[CH3]'))
+MthRad=Chem.AddHs(Chem.MolFromSmiles('[CH]'))
 display(Draw.MolToImage(MthRad))
 print(Chem.MolToMolBlock(MthRad))
+
+from rdkit.Chem import Descriptors
+Descriptors.NumRadicalElectrons(MthRad)
+
+atm=MthRad.GetAtomWithIdx(0)
+atm.GetNumRadicalElectrons()
+display(Draw.MolToImage(MthRad))
+
+atm.SetNumRadicalElectrons(1)
+
+s_test='''
+     RDKit          2D
+
+  2  1  0  0  0  0  0  0  0  0999 V2000
+    0.0000    0.0000    0.0000 C   0  0  0  0  0  1  0  0  0  0  0  0
+    1.2990    0.7500    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0
+M  RAD  1   1   2
+M  END'''
+m_test=Chem.MolFromMolBlock(s_test,removeHs=False)
+AllChem.Compute2DCoords(m_test)
+display(Draw.MolToImage(m_test))
 
 import itertools
 import numpy as np

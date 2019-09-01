@@ -27,29 +27,31 @@ print(Chem.MolToMolBlock(MthRad))
 import itertools
 import numpy as np
 
+# +
+l_p_atm=['C','H','H','H','H']
+
 l_mb=[]
 l_b=[[0,0,1],[0,1,0],[1,0,0]]
-l_hb=list(itertools.combinations_with_replacement(l_b, 3))
+n_hs=len(l_b)
+l_hb=list(itertools.combinations_with_replacement(l_b, n_hs))
 for j in range(len(l_hb)):
     l_hb_p=[]
-    for i in range(3):
+    for i in range(n_hs):
         l_1hb=l_hb[j][i].copy()
         l_1hb.insert(i+1,0)
         l_hb_p.append(l_1hb)
     m_bh=np.array(l_hb_p)
     v_b_c=np.insert(m_bh[:,0],0,0)
+    #炭素のarrayを作る
     m_b=np.concatenate([v_b_c[np.newaxis,:],m_bh],axis=0)
+    #炭素のarrayと水素のarrayを結合
     if(np.all(m_b==m_b.T)):
         m_b[0,0]=4-m_b[0,:].sum()
         l_mb.append(m_b)
-l_mb
+print(l_mb)
 
-for i in range(4):
-    for j in range(4):
-        if i>j:
-            if(m_b[i,j]>0):
-                print(i,j,m_b[i,j])
 
+# -
 
 class Compound:
     def __init__(self,i,j,l_o_atm,m_o_b):
@@ -86,12 +88,143 @@ class Compound:
         self.m_adm=np.array(l_adm)
         
         self.l_adl=[]
+        self.l_s_adl=[]
+        self.n_rad=0
+        self.l_rad=[]
+        self.l_vlc=[0]*self.m_adm.shape[0]
         for i in range(self.m_adm.shape[0]):
             for j in range(i+1,self.m_adm.shape[1]):
                 if(self.m_adm[i,j]==0):
                     continue
-                self.l_adl.append([i+1,j+1,self.m_adm[i,j]])
+                self.l_adl.append([i,j,self.m_adm[i,j]])
+                self.l_s_adl.append([str(i+1),str(j+1),str(self.m_adm[i,j])])
+            if(self.m_adm[i,i]>0):
+                self.n_rad+=1
+                self.l_rad.append('   '+str(i+1)+'   2')
+                self.l_vlc[i]=self.m_adm[i,:i].sum()+self.m_adm[i,i+1:].sum()
+    
+    def strMolB(self):
+        n_atm=len(self.l_atm)
+        n_bnd=len(self.l_adl)
+        s_mb='\n'+' '*5+'Original'+' '*7+'2D'+'\n'
+        s_mb=s_mb+'\n'+' '*2+str(n_atm)+' '*2+str(n_bnd)+'  0  0  0  0  0  0  0  0999 V2000'
+        for i in range(self.m_adm.shape[0]):
+            s_mb=s_mb+'\n'+'    0.0   '*3+' '+self.l_n_atm[i]+'   0'+'  0'*4+'  '+str(self.l_vlc[i])+'  0'*6
+        for bond in self.l_s_adl:
+            s_mb=s_mb+'\n'+' '*2+bond[0]+' '*2+bond[1]+' '*2+bond[2]+'  0'
+        if(self.n_rad>0):
+            s_mb=s_mb+'\nM  RAD  '+str(self.n_rad)
+            for rad in self.l_rad:
+                s_mb=s_mb+rad
+        s_mb=s_mb+'\n'+'M  END'
+        return s_mb
 
+
+[0]*10
+
+m_b[0,:3].sum()+m_b[0,4:].sum()
+
+# +
+#aaabbblllfffcccsssxxxrrrpppiiimmmvvvvvv
+#xxxxx.xxxxyyyyy.yyyyzzzzz.zzzz aaaddcccssshhhbbbvvvHHHrrriiimmmnnneee
+#111222tttsssxxxrrrccc
+#M RADnn8 aaa vvv
+
+#  5  4  0  0  0  0  0  0  0  0999 V2000
+#    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+#  1  2  1  0
+#M  RAD  1   1   2
+
+# +
+l_p_atm=['C','H','H','H','H']
+
+l_mb=[]
+l_b=[[0,0,1],[0,1,0],[1,0,0]]
+n_hs=len(l_b)
+l_hb=list(itertools.combinations_with_replacement(l_b, n_hs))
+for j in range(len(l_hb)):
+    l_hb_p=[]
+    for i in range(n_hs):
+        l_1hb=l_hb[j][i].copy()
+        l_1hb.insert(i+1,0)
+        l_hb_p.append(l_1hb)
+    m_bh=np.array(l_hb_p)
+    v_b_c=np.insert(m_bh[:,0],0,0)
+    #炭素のarrayを作る
+    m_b=np.concatenate([v_b_c[np.newaxis,:],m_bh],axis=0)
+    #炭素のarrayと水素のarrayを結合
+    if(np.all(m_b==m_b.T)):
+        m_b[0,0]=4-m_b[0,:].sum()
+        l_mb.append(m_b)
+
+l_p_comp=[]
+n_p_comb=0
+for m_p_b in l_mb:
+    for i in range(m_p_b.shape[0]):
+        for j in range(m_p_b.shape[1]):
+            if i>j:
+                m_p_b[i,j]=m_p_b[j,i]
+
+    d_atom = {}
+    #どの原子がどの原子群に属しているかという辞書
+    d_comp={}
+    #原子群ごとにどの原子が属しているかという辞書
+    d_lt={}
+    comp_c=0
+    for i in range(m_p_b.shape[0]):
+        for j in range(i+1,m_p_b.shape[1]):
+            if(m_p_b[i,j]==0):
+                continue
+            if i not in d_atom.keys():
+                if j not in d_atom.keys():
+                    d_atom[i]=comp_c
+                    d_atom[j]=comp_c
+                    d_comp[comp_c]=Compound(i,j,l_p_atm,m_p_b)
+                    comp_c+=1
+                    #i,ｊを新しく原子群に追加
+                else:
+                    d_atom[i]=d_atom[j]
+                    d_comp[d_atom[j]].addatm(i)
+                    #iをｊの属している原子群に
+            else:
+                if j not in d_atom.keys():
+                    d_atom[j]=d_atom[i]
+                    d_comp[d_atom[i]].addatm(j)
+                    #iをｊの属している原子群に
+                else:
+                    if(d_atom[i]<d_atom[j]):
+                        Comp=d_comp.pop(d_atom[j])
+                        #つながっているとわかった原子群をpopで取り出す
+                        d_comp[d_atom[i]].exatms(Comp.l_atm)
+                        #番号の若い方に追加
+                        for atm_num in Comp.l_atm:
+                            d_atom[atm_num]=d_atom[i]
+                            #つながっているわかった原子群の属する原子群を若い方に更新
+                    elif(d_atom[i]>d_atom[j]):
+                        Comp=d_comp.pop(d_atom[i])
+                        #つながっているとわかった原子群をpopで取り出す
+                        d_comp[d_atom[j]].exatms(Comp.l_atm)
+                        #番号の若い方に追加
+                        for atm_num in Comp.l_atm:
+                            d_atom[atm_num]=d_atom[j]
+    print('組み合わせ:'+str(n_p_comb))
+    for k in d_comp:
+        d_comp[k].calcAd()
+        c=d_comp[k]
+    #     print(k,c.d_atm,c.l_atm,'\n',c.l_adl,c.l_n_atm)
+        print(c.strMolB())
+        m_test=Chem.MolFromMolBlock(c.strMolB(),removeHs=False)
+        AllChem.Compute2DCoords(m_test)
+        display(Draw.MolToImage(m_test))
+    print()
+    
+    l_p_comp.append(d_comp.copy())
+    n_p_comb+=1
+# -
+
+m_test=Chem.MolFromMolBlock(c.strMolB(),removeHs=False)
+AllChem.Compute2DCoords(m_test)
+display(Draw.MolToImage(m_test))
 
 # +
 l_p_atm=['C','C','H','H','H','H']
@@ -100,7 +233,7 @@ for i in range(m_b.shape[0]):
     for j in range(m_b.shape[1]):
         if i>j:
             m_b[i,j]=m_b[j,i]
-print(m_b)
+# print(m_b)
                 
 d_atom = {}
 #どの原子がどの原子群に属しているかという辞書
@@ -148,8 +281,90 @@ for i in range(m_b.shape[0]):
 for k in d_comp:
     d_comp[k].calcAd()
     c=d_comp[k]
-    print(k,c.d_atm,c.l_atm,'\n',c.l_adl,c.l_n_atm)
+#     print(k,c.d_atm,c.l_atm,'\n',c.l_adl,c.l_n_atm)
+    print(c.strMolB())
 # -
+
+l_hb
+
+for i in range(4):
+    for j in range(4):
+        if i>j:
+            if(m_b[i,j]>0):
+                print(i,j,m_b[i,j])
+
+# +
+l_p_atm=['C','C','H','H','H','H']
+m_b=np.array([[0,3,1,0,0,0],[3,0,0,1,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,1],[0,0,0,0,0,0]])
+for i in range(m_b.shape[0]):
+    for j in range(m_b.shape[1]):
+        if i>j:
+            m_b[i,j]=m_b[j,i]
+# print(m_b)
+                
+d_atom = {}
+#どの原子がどの原子群に属しているかという辞書
+d_comp={}
+#原子群ごとにどの原子が属しているかという辞書
+d_lt={}
+comp_c=0
+for i in range(m_b.shape[0]):
+    for j in range(i+1,m_b.shape[1]):
+        if(m_b[i,j]==0):
+            continue
+        if i not in d_atom.keys():
+            if j not in d_atom.keys():
+                d_atom[i]=comp_c
+                d_atom[j]=comp_c
+                d_comp[comp_c]=Compound(i,j,l_p_atm,m_b)
+                comp_c+=1
+                #i,ｊを新しく原子群に追加
+            else:
+                d_atom[i]=d_atom[j]
+                d_comp[d_atom[j]].addatm(i)
+                #iをｊの属している原子群に
+        else:
+            if j not in d_atom.keys():
+                d_atom[j]=d_atom[i]
+                d_comp[d_atom[i]].addatm(j)
+                #iをｊの属している原子群に
+            else:
+                if(d_atom[i]<d_atom[j]):
+                    Comp=d_comp.pop(d_atom[j])
+                    #つながっているとわかった原子群をpopで取り出す
+                    d_comp[d_atom[i]].exatms(Comp.l_atm)
+                    #番号の若い方に追加
+                    for atm_num in Comp.l_atm:
+                        d_atom[atm_num]=d_atom[i]
+                        #つながっているわかった原子群の属する原子群を若い方に更新
+                elif(d_atom[i]>d_atom[j]):
+                    Comp=d_comp.pop(d_atom[i])
+                    #つながっているとわかった原子群をpopで取り出す
+                    d_comp[d_atom[j]].exatms(Comp.l_atm)
+                    #番号の若い方に追加
+                    for atm_num in Comp.l_atm:
+                        d_atom[atm_num]=d_atom[j]
+
+for k in d_comp:
+    d_comp[k].calcAd()
+    c=d_comp[k]
+#     print(k,c.d_atm,c.l_atm,'\n',c.l_adl,c.l_n_atm)
+    print(c.strMolB())
+# -
+
+for k in d_comp:
+    d_comp[k].calcAd()
+    c=d_comp[k]
+#     print(k,c.d_atm,c.l_atm,'\n',c.l_adl,c.l_n_atm)
+    m_test=Chem.MolFromMolBlock(c.strMolB(),removeHs=False)
+    AllChem.Compute2DCoords(m_test)
+    display(Draw.MolToImage(m_test))
+
+m_test=Chem.MolFromMolBlock(c.strMolB(),removeHs=False)
+AllChem.Compute2DCoords(m_test)
+Draw.MolToImage(m_test)
+
+c.strMolB()
 
 d_comp[0].calcAdL()
 d_comp[0].m_b_adl
@@ -255,17 +470,6 @@ AllChem.Compute2DCoords(test_m)
 Draw.MolToImage(test_m)
 
 len(l_l_b_map[i])
-
-# +
-#aaabbblllfffcccsssxxxrrrpppiiimmmvvvvvv
-#xxxxx.xxxxyyyyy.yyyyzzzzz.zzzz aaaddcccssshhhbbbvvvHHHrrriiimmmnnneee
-#111222tttsssxxxrrrccc
-
-# +
-#  5  4  0  0  0  0  0  0  0  0999 V2000
-#    0.0000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
-#  1  2  1  0
-# -
 
 
 

@@ -1,0 +1,104 @@
+PCCDB-ID:  68981
+public computational chemistry database (PCCDB) project, http://pccdb.org
+
+  8  7  0  0  0  0  0  0  0  0999 V2000
+    1.0879    0.0372   -0.0316 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.5969    0.0232    0.0323 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.4601   -0.2671    1.3952 S   0  0  0  0  0  0  0  0  0  0  0  0
+    3.4541    0.3423   -1.4820 S   0  0  0  0  0  0  0  0  0  0  0  0
+    0.6699   -0.1666    0.9551 H   0  0  0  0  0  0  0  0  0  0  0  0
+    0.7259   -0.7208   -0.7378 H   0  0  0  0  0  0  0  0  0  0  0  0
+    0.7256    1.0127   -0.3802 H   0  0  0  0  0  0  0  0  0  0  0  0
+    2.3812    0.5203   -2.2892 H   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  1  5  1  0  0  0  0
+  2  3  2  0  0  0  0
+  4  2  1  0  0  0  0
+  6  1  1  0  0  0  0
+  7  1  1  0  0  0  0
+  8  4  1  0  0  0  0
+M  END
+>  <HBA>
+2
+
+>  <HBD>
+1
+
+>  <TPSA>
+70.89
+
+>  <cid>
+68981
+
+>  <dipole>
+3.61
+
+>  <excitation_energy_1>
+2.703
+
+>  <excitation_energy_2>
+4.528
+
+>  <excitation_energy_3>
+5.011
+
+>  <excitation_energy_4>
+5.485
+
+>  <homo_energy>
+-6.218
+
+>  <homo_lumo_gap>
+4.112
+
+>  <logP>
+1.264
+
+>  <lumo_energy>
+-2.106
+
+>  <melting_point>
+26.71
+
+>  <molecular_refractivity>
+27.45
+
+>  <oscillator_strength_1>
+0.0
+
+>  <oscillator_strength_2>
+0.1528
+
+>  <oscillator_strength_3>
+0.0205
+
+>  <oscillator_strength_4>
+0.0013
+
+>  <open_babel_can_smiles>
+CC(=S)S
+
+>  <mulliken_charges>
+8
+1   -0.478209
+2   -0.152508
+3   -0.102021
+4   0.075878
+5   0.201454
+6   0.18261
+7   0.182019
+8   0.090778
+
+>  <lowdin_charges>
+8
+1   -0.451364
+2   -0.196201
+3   -0.06423
+4   0.066519
+5   0.182914
+6   0.175405
+7   0.173938
+8   0.113019
+
+$$$$
+

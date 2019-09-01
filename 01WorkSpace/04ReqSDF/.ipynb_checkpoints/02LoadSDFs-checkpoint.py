@@ -98,9 +98,10 @@ with open(D_sdf['RP'],'rb') as f:
 #         print(1)
         if m is not None:
             print(list(m.GetPropNames()))
+            print()
 
 #改行前の空白があるとRdkitで読み込めないので削除
-SDF_R=L_sdf[1]['sdf'].replace(' \r','\r')
+SDF_R=L_sdf[1]['sdf'].replace(' \n','\n')
 # print(L_sdf[0].replace(' \n','\n'))
 
 SDF_R
@@ -115,6 +116,8 @@ with open('./PCCID0001_R.sdf','rb') as f:
     suppl=Chem.ForwardSDMolSupplier(f)
     for m in suppl:
         print(list(m.GetPropNames()))
+
+m.GetProp('lowdin_charges')
 
 with open('./PCCID0001_R.sdf','rb') as f:
     suppl=Chem.ForwardSDMolSupplier(f)

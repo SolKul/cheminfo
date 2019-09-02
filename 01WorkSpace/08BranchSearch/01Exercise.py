@@ -15,9 +15,16 @@
 
 from rdkit import rdBase, Chem
 from rdkit.Chem import AllChem, Draw
+import itertools
+import numpy as np
+
+
+def disp100mol(mol):
+    display(Draw.MolToImage(mol,size=(100,100)))
+
 
 r32=Chem.AddHs(Chem.MolFromSmiles('C(F)F'))
-display(Draw.MolToImage(r32))
+disp100mol(r32)
 print(Chem.MolToMolBlock(r32))
 
 MthRad=Chem.AddHs(Chem.MolFromSmiles('[CH]'))
@@ -28,10 +35,10 @@ from rdkit.Chem import Descriptors
 Descriptors.NumRadicalElectrons(MthRad)
 
 atm=MthRad.GetAtomWithIdx(0)
-atm.GetNumRadicalElectrons()
+print(atm.GetNumRadicalElectrons())
 display(Draw.MolToImage(MthRad))
 
-atm.SetNumRadicalElectrons(1)
+atm.SetNumRadicalElectrons(3)
 
 s_test='''
      RDKit          2D
@@ -140,6 +147,20 @@ class Compound:
                 s_mb=s_mb+rad
         s_mb=s_mb+'\n'+'M  END'
         return s_mb
+    
+    def GenMol(self):
+        #Molオブジェクトを作る
+        self.calcAd()
+        #隣接リストを作成し、
+        self.cmol=Chem.MolFromMolBlock(self.strMolB(),removeHs=False)
+        #MolBlockを作成し、そのMBからMolオブジェクトを生成
+        AllChem.Compute2DCoords(self.cmol)
+        #2次元座標を計算
+        
+        l_atms=list(self.cmol.GetAtoms())
+        for i in range (self.m_adm.shape[0]):
+            if(self.m_adm[i][i]>0):
+                l_atms[i].SetNumRadicalElectrons(int(self.m_adm[i,i]))
 
 
 [0]*10
@@ -231,13 +252,9 @@ for m_p_b in l_mb:
                             d_atom[atm_num]=d_atom[j]
     print('組み合わせ:'+str(n_p_comb))
     for k in d_comp:
-        d_comp[k].calcAd()
         c=d_comp[k]
-    #     print(k,c.d_atm,c.l_atm,'\n',c.l_adl,c.l_n_atm)
-        print(c.strMolB())
-        m_test=Chem.MolFromMolBlock(c.strMolB(),removeHs=False)
-        AllChem.Compute2DCoords(m_test)
-        display(Draw.MolToImage(m_test))
+        c.GenMol()
+        disp100mol(c.cmol)
     print()
     
     l_p_comp.append(d_comp.copy())

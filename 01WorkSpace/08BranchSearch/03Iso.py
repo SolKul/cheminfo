@@ -59,7 +59,7 @@ disp100mol(r32)
 d_atm2vlc={'C':4,'H':1,'F':1,'O':2}
 
 class CombProducts:
-    def __init__(self,l_p_atm):
+    def __init__(self,l_p_atm,b_exist_atm=True):
         self.l_p_atm=l_p_atm.copy()
         self.l_vlc=[]
         for atm in l_p_atm:
@@ -177,10 +177,13 @@ l_p_atm=['C','C','F','F','H']
 CP_t=CombProducts(l_p_atm)
 CP_t.DispComb()
 
+# +
+b_exist_atm=True
 d_atm2vlc={'C':4,'H':1,'F':1,'O':2,'N':3}
 
-# +
-l_p_atm=['C','F','O','N','H']
+
+# l_p_atm=['C','F','O','N','H']
+l_p_atm=['C','C','C','C']
 l_vlc=[]
 for atm in l_p_atm:
     l_vlc.append(d_atm2vlc[atm])
@@ -216,21 +219,35 @@ for k in range(1,len(l_p_atm)):
             l_bond_r_p.append(l_bond)
     l_bond_p.append(l_bond_r_p)
 l_bond_p
-# -
 
+# +
 ar_bond_p=np.array(list(itertools.product(*l_bond_p)))
+ar_atm_vlc0=(np.ones([len(l_p_atm)])*-1).astype('int')
+ar_b_atm=np.zeros([ar_bond_p.shape[0]],dtype='bool')
 for i in range(ar_bond_p.shape[0]):
     for j in range(ar_bond_p.shape[1]):
         ar_bond_p[i,:j,j]=ar_bond_p[i,j,:j]
         #対称行列にする
+
+            
 ar_b_cons=ar_bond_p.sum(axis=1)<=np.array(l_vlc)
 #結合数が原子価以下のものをbooleanとして抽出
 ar_b_ind=np.all(ar_b_cons,axis=1)
 #すべての原子が、結合数が原子価以下であったらその隣接行列は整合性があると判断する
 #その整合性のあるもののindex
+
+if(not(b_exist_atm)):
+    ar_b_atm=np.all(ar_bond_p.sum(axis=1)!=0,axis=1)
+    ar_b_ind=np.logical_and(ar_b_atm,ar_b_ind)
 ar_bond_cons=ar_bond_p[ar_b_ind]
 #整合性のあるもののみ取り出す。
+
 ar_bond_cons[:3]
+# -
+
+b_exist_atm=False
+
+ar_bond_cons.shape
 
 # +
 for i in range(ar_bond_cons.shape[0]):
@@ -402,16 +419,16 @@ class Products:
                     self.l_comp[self.ar_c_t[i]].addatm(j)
                 else:
                     if(self.ar_c_t[i]<self.ar_c_t[j]):
-                        Comp=l_comp.pop(self.ar_c_t[j])
+                        Comp=self.l_comp.pop(self.ar_c_t[j])
                         #繋がっていると分かった原子群同士のうち番号が大きい方をpopする
-                        l_comp[self.ar_c_t[i]].exatms(Comp.l_atm)
+                        self.l_comp[self.ar_c_t[i]].exatms(Comp.l_atm)
                         #番号が小さい方に追加
                         for atm_num in Comp.l_atm:
                             self.ar_c_t[atm_num]=self.ar_c_t[i]
                             #繋がっていると分かった原子群のそれぞれの原子の属する原子群の番号を小さい方に統一
                     elif(self.ar_c_t[j]<self.ar_c_t[i]):
-                        Comp=l_comp.pop(self.ar_c_t[i])
-                        l_comp[self.ar_c_t[j]].exatms(Comp.l_atm)
+                        Comp=self.l_comp.pop(self.ar_c_t[i])
+                        self.l_comp[self.ar_c_t[j]].exatms(Comp.l_atm)
                         for atm_num in Comp.l_atm:
                             self.ar_c_t[atm_num]=self.ar_c_t[j]
         for i in range(self.m_bnd.shape[0]):
@@ -443,14 +460,8 @@ class Products:
         print(self.str_smiles)
 
 
-arg_s=np.argsort(p_t.l_smiles)
-np.array(p_t.l_mols)[arg_s]
-
-p_t.Dispmols()
-
-print(p_t.l_comp[0].strMolB())
-
-np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc))
+p_t=Products(l_p_atm,ar_bond_can[i],l_vlc)
+p_t.SplitComp()
 
 l_l_smiles=[]
 comb_c=0
@@ -463,9 +474,18 @@ for i in range(ar_bond_can.shape[0]):
     if (np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc))):
         continue
     print('組み合わせ:'+str(comb_c))
-    print(np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc)))
+#     print(np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc)))
     l_l_smiles.append(p_t.str_smiles)
     p_t.Dispmols()
     comb_c+=1
+
+arg_s=np.argsort(p_t.l_smiles)
+np.array(p_t.l_mols)[arg_s]
+
+p_t.Dispmols()
+
+print(p_t.l_comp[0].strMolB())
+
+np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc))
 
 

@@ -175,16 +175,16 @@ class Products:
                     self.l_comp[self.ar_c_t[i]].addatm(j)
                 else:
                     if(self.ar_c_t[i]<self.ar_c_t[j]):
-                        Comp=l_comp.pop(self.ar_c_t[j])
+                        Comp=self.l_comp.pop(self.ar_c_t[j])
                         #繋がっていると分かった原子群同士のうち番号が大きい方をpopする
-                        l_comp[self.ar_c_t[i]].exatms(Comp.l_atm)
+                        self.l_comp[self.ar_c_t[i]].exatms(Comp.l_atm)
                         #番号が小さい方に追加
                         for atm_num in Comp.l_atm:
                             self.ar_c_t[atm_num]=self.ar_c_t[i]
                             #繋がっていると分かった原子群のそれぞれの原子の属する原子群の番号を小さい方に統一
                     elif(self.ar_c_t[j]<self.ar_c_t[i]):
-                        Comp=l_comp.pop(self.ar_c_t[i])
-                        l_comp[self.ar_c_t[j]].exatms(Comp.l_atm)
+                        Comp=self.l_comp.pop(self.ar_c_t[i])
+                        self.l_comp[self.ar_c_t[j]].exatms(Comp.l_atm)
                         for atm_num in Comp.l_atm:
                             self.ar_c_t[atm_num]=self.ar_c_t[j]
         for i in range(self.m_bnd.shape[0]):
@@ -221,7 +221,7 @@ d_atm2vlc={'C':4,'H':1,'F':1,'O':2,'N':3}
 
 class CombProducts:
     #生成物の組み合わせのクラス
-    def __init__(self,l_p_atm,b_exist_atm=True):
+    def __init__(self,l_p_atm,b_exist_atm=True,b_exist_rad=True):
         l_p_atm=l_p_atm.copy()
         l_vlc=[]
         for atm in l_p_atm:
@@ -231,6 +231,7 @@ class CombProducts:
         self.l_vlc=np.array(l_vlc)[arg_s]
         self.n_atm=len(l_p_atm)
         self.b_exist_atm=b_exist_atm
+        self.b_exist_rad=b_exist_rad
     def CalcComb(self):
         l_bond_p=[[[0]*self.n_atm]]
         #取りうる隣接行列の行
@@ -264,9 +265,16 @@ class CombProducts:
                 #対称行列にする
         ar_b_cons=ar_bond_p.sum(axis=1)<=np.array(self.l_vlc)
         #結合数が原子価以下のものをbooleanとして抽出
+        if(not(self.b_exist_rad)):
+            #ラジカルの存在を許さない場合
+            ar_b_cons=ar_bond_p.sum(axis=1)==np.array(self.l_vlc)
         ar_b_ind=np.all(ar_b_cons,axis=1)
         #すべての原子が、結合数が原子価以下であったらその隣接行列は整合性があると判断する
         #その整合性のあるもののindex
+        if(not(self.b_exist_atm)):
+            #原子の存在を許さない場合
+            ar_b_atm=np.all(ar_bond_p.sum(axis=1)!=0,axis=1)
+            ar_b_ind=np.logical_and(ar_b_atm,ar_b_ind)
         ar_bond_cons=ar_bond_p[ar_b_ind]
         #整合性のあるもののみ取り出す。
 
@@ -322,9 +330,9 @@ class CombProducts:
             if p_t.str_smiles in l_l_smiles:
                 #smilesのリストにあれば飛ばす
                 continue
-            if (not(self.b_exist_atm) and np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc))):
-                #原子での存在を許していなければ飛ばす
-                continue
+#             if (not(self.b_exist_atm) and np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc))):
+#                 #原子での存在を許していなければ飛ばす
+#                 continue
             l_l_smiles.append(p_t.str_smiles)
             self.l_prod.append(p_t)
             self.comb_c+=1
@@ -338,6 +346,6 @@ class CombProducts:
 
 # -
 
-l_p_atm=['C','C','H','H','H','H']
-CP_t=CombProducts(l_p_atm,b_exist_atm=False)
+l_p_atm=['C','C','C','C','H','H','H','H']
+CP_t=CombProducts(l_p_atm,b_exist_atm=False,b_exist_rad=False)
 CP_t.DispComb()

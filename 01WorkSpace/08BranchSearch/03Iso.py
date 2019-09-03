@@ -177,12 +177,18 @@ l_p_atm=['C','C','F','F','H']
 CP_t=CombProducts(l_p_atm)
 CP_t.DispComb()
 
-d_atm2vlc={'C':4,'H':1,'F':1}
+d_atm2vlc={'C':4,'H':1,'F':1,'O':2,'N':3}
 
-l_p_atm=['C','C','H','H']
+# +
+l_p_atm=['C','F','O','N','H']
 l_vlc=[]
 for atm in l_p_atm:
     l_vlc.append(d_atm2vlc[atm])
+    
+arg_s=np.argsort(l_vlc)[::-1]
+l_p_atm=np.array(l_p_atm)[arg_s]
+l_vlc=np.array(l_vlc)[arg_s]
+        
 n_atm=len(l_p_atm)
 #原子のリスト
 l_bond_p=[[[0]*n_atm]]
@@ -210,6 +216,7 @@ for k in range(1,len(l_p_atm)):
             l_bond_r_p.append(l_bond)
     l_bond_p.append(l_bond_r_p)
 l_bond_p
+# -
 
 ar_bond_p=np.array(list(itertools.product(*l_bond_p)))
 for i in range(ar_bond_p.shape[0]):
@@ -439,9 +446,11 @@ class Products:
 arg_s=np.argsort(p_t.l_smiles)
 np.array(p_t.l_mols)[arg_s]
 
+p_t.Dispmols()
+
 print(p_t.l_comp[0].strMolB())
 
-
+np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc))
 
 l_l_smiles=[]
 comb_c=0
@@ -449,10 +458,14 @@ for i in range(ar_bond_can.shape[0]):
     p_t=Products(l_p_atm,ar_bond_can[i],l_vlc)
     p_t.GenMols()
 #     print(p_t.str_smiles)
-    if p_t.str_smiles not in l_l_smiles:
-        print('組み合わせ:'+str(comb_c))
-        l_l_smiles.append(p_t.str_smiles)
-        p_t.Dispmols()
-        comb_c+=1
+    if p_t.str_smiles in l_l_smiles:
+        continue
+    if (np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc))):
+        continue
+    print('組み合わせ:'+str(comb_c))
+    print(np.any(np.diag(p_t.m_bnd)==np.array(p_t.l_vlc)))
+    l_l_smiles.append(p_t.str_smiles)
+    p_t.Dispmols()
+    comb_c+=1
 
 

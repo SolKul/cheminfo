@@ -17,6 +17,7 @@ from rdkit import rdBase, Chem
 from rdkit.Chem import AllChem, Draw
 import itertools
 import numpy as np
+from PIL import Image
 
 
 # +
@@ -30,31 +31,183 @@ def Base_n_to_10(l_X,n):
         out += int(l_X[-i])*(n**(i-1))
     return out#int out
 
+def get_concat_h(l_im):
+    width_sum=0
+    for im in l_im:
+        width_sum+=im.width
+    dst = Image.new('RGB', (width_sum, l_im[0].height))
+    width_p=0
+    for im in l_im:
+        dst.paste(im, (width_p, 0))
+        width_p+=im.width
+    return dst
+
+def Conc_h_mols(l_mols):
+    l_im=[]
+    for mol in l_mols:
+        im_mol=Draw.MolToImage(mol,size=(200,200))
+        l_im.append(im_mol.resize((150,150),resample=5))
+    display(get_concat_h(l_im))
+
 
 # -
 
-l_p_atm=['C','H','H','H']
-l_vlc=[4,1,1,1]
-n_atm=len(l_c_atm)
+r32=Chem.AddHs(Chem.MolFromSmiles('[H][C]=C=[C][H]'))
+disp100mol(r32)
+
+# +
+d_atm2vlc={'C':4,'H':1,'F':1,'O':2}
+
+class CombProducts:
+    def __init__(self,l_p_atm):
+        self.l_p_atm=l_p_atm.copy()
+        self.l_vlc=[]
+        for atm in l_p_atm:
+            self.l_vlc.append(d_atm2vlc[atm])
+        self.n_atm=len(l_p_atm)
+    def CalcComb(self):
+        l_bond_p=[[[0]*self.n_atm]]
+        #取りうる隣接行列の行
+        #最初の行は後から決まるので0で良い
+        for k in range(1,self.n_atm):
+            n_atm_r=k+1
+            #注目すればいい原子の数
+            #三角形の横方向の数+1
+            #詳しくは足してnになる組み合わせの数の応用の
+            #足してn以下になる組み合わせの数を参照
+            n_valence=self.l_vlc[k]
+            l_cr=list(itertools.combinations_with_replacement(list(range(n_atm_r)),n_valence))
+            l_bond_r_p=[]
+            #隣接行列のある1行が取りうる行のリスト
+            for i in range(len(l_cr)):
+                l_bond=[0]*self.n_atm
+                for j in range(n_atm_r-1):
+                    b_num=l_cr[i].count(j)
+                    if(b_num>3):
+                        break
+                    l_bond[j]=b_num
+                else:
+                    l_bond_r_p.append(l_bond)
+            l_bond_p.append(l_bond_r_p)
+
+        ar_bond_p=np.array(list(itertools.product(*l_bond_p)))
+        #隣接行列のある1行が取りうる行同士の直積
+        for i in range(ar_bond_p.shape[0]):
+            for j in range(ar_bond_p.shape[1]):
+                ar_bond_p[i,:j,j]=ar_bond_p[i,j,:j]
+                #対称行列にする
+        ar_b_cons=ar_bond_p.sum(axis=1)<=np.array(self.l_vlc)
+        #結合数が原子価以下のものをbooleanとして抽出
+        ar_b_ind=np.all(ar_b_cons,axis=1)
+        #すべての原子が、結合数が原子価以下であったらその隣接行列は整合性があると判断する
+        #その整合性のあるもののindex
+        ar_bond_cons=ar_bond_p[ar_b_ind]
+        #整合性のあるもののみ取り出す。
+
+        for i in range(ar_bond_cons.shape[0]):
+            for j in range(ar_bond_cons.shape[1]):
+                ar_bond_cons[i,j,j:]=0
+                #下三角行列にする。
+
+        l_l_base=[]
+        for i in range(ar_bond_cons.shape[0]):
+            l_base=[]
+            for j in range(ar_bond_cons.shape[1]):
+                l_base.append(Base_n_to_10(ar_bond_cons[i,j,:],self.l_vlc[j]+1))
+                #隣接行列を原子価+1進数とみなして十進数に直す。
+                #この十進数にした数字で並び替えて、
+                #同型のグラフを見つけ出す
+            l_l_base.append(l_base)
+            #十進数に直した数字のリストをリストに追加
+        ar_base=np.array(l_l_base)
+        #このar_baseの1行について、原子種ごとにソートしたものは
+        #同じグラフについては同じになる。(ただし同じにならない場合もある。)
+        #ある一つのグラフに対して1意に決まるカノニカルラベルと言える
+        #(厳密には違うが)
+        
+        ar_c_atm=np.array(self.l_p_atm)
+        #原子種のリストをarray化
+        ar_uni=np.unique(ar_c_atm)
+        #原子のリストのユニークな要素を取り出し
+        l_c_table=[]
+        l_cons_b=[]
+        for i in range(len(ar_base)):
+            l_sorted=[]
+            for atm in ar_uni:
+                ar_uni_b=(ar_c_atm==atm)
+                #原子リストのうち、注目している原子種と一致するところをbooleanで取り出す
+                l_sorted.extend(np.sort(ar_base[i][ar_uni_b]))
+                #そのbooleanで取り出してsortし、原子種ごとにカノニカルラベルを作成
+                #それをリストに追加し、グラフ全体のカノニカルラベルとする。
+            if l_sorted not in l_c_table:
+                #そのグラフ全体のカノニカルラベルがチェック表になければ、追加
+                l_c_table.append(l_sorted)
+                #カノニカルラベルがユニークなもののindexを追加
+                l_cons_b.append(i)
+        self.ar_bond_can=ar_bond_cons[l_cons_b]
+    def GenProComb(self):
+        self.CalcComb()
+        l_l_smiles=[]
+        self.l_prod=[]
+        self.comb_c=0
+        for i in range(self.ar_bond_can.shape[0]):
+            p_t=Products(self.l_p_atm,self.ar_bond_can[i],self.l_vlc)
+            p_t.GenMols()
+            if p_t.str_smiles not in l_l_smiles:
+                l_l_smiles.append(p_t.str_smiles)
+                self.l_prod.append(p_t)
+                self.comb_c+=1
+    def DispComb(self):
+        self.GenProComb()
+        for i in range(self.comb_c):
+            print('組み合わせ:'+str(i))
+            self.l_prod[i].Dispmols()
+            print()
+#         #     print(p_t.str_smiles)
+#             if p_t.str_smiles not in l_l_smiles:
+#                 print('組み合わせ:'+str(comb_c))
+#                 l_l_smiles.append(p_t.str_smiles)
+#                 p_t.Dispmols()
+#                 comb_c+=1
+
+
+# -
+
+l_p_atm=['C','C','F','F','H']
+CP_t=CombProducts(l_p_atm)
+CP_t.DispComb()
+
+d_atm2vlc={'C':4,'H':1,'F':1}
+
+l_p_atm=['C','C','H','H']
+l_vlc=[]
+for atm in l_p_atm:
+    l_vlc.append(d_atm2vlc[atm])
+n_atm=len(l_p_atm)
 #原子のリスト
 l_bond_p=[[[0]*n_atm]]
 #取りうる隣接行列の行
 #最初の行は後から決まるので0で良い
-for k in range(1,len(l_c_atm)):
+for k in range(1,len(l_p_atm)):
     n_atm_r=k+1
     #注目すればいい原子の数
     #三角形の横方向の数+1
-    #詳しくは足してnになる組み合わせの数の応用
+    #詳しくは足してnになる組み合わせの数の応用の
     #足してn以下になる組み合わせの数を参照
     n_valence=l_vlc[k]
     l_cr=list(itertools.combinations_with_replacement(list(range(n_atm_r)),n_valence))
+    print(l_cr)
     l_bond_r_p=[]
     #隣接行列のある1行が取りうる行のリスト
     for i in range(len(l_cr)):
         l_bond=[0]*n_atm
         for j in range(n_atm_r-1):
-            l_bond[j]=l_cr[i].count(j)
-        l_bond_r_p.append(l_bond)
+            b_num=l_cr[i].count(j)
+            if(b_num>3):
+                break
+            l_bond[j]=b_num
+        else:
+            l_bond_r_p.append(l_bond)
     l_bond_p.append(l_bond_r_p)
 l_bond_p
 
@@ -63,7 +216,7 @@ for i in range(ar_bond_p.shape[0]):
     for j in range(ar_bond_p.shape[1]):
         ar_bond_p[i,:j,j]=ar_bond_p[i,j,:j]
         #対称行列にする
-ar_b_cons=ar_bond_p.sum(axis=1)<=np.array([[4,1,1,1]])
+ar_b_cons=ar_bond_p.sum(axis=1)<=np.array(l_vlc)
 #結合数が原子価以下のものをbooleanとして抽出
 ar_b_ind=np.all(ar_b_cons,axis=1)
 #すべての原子が、結合数が原子価以下であったらその隣接行列は整合性があると判断する
@@ -96,7 +249,7 @@ print(ar_base[:3])
 #(厳密には違うが)
 # -
 
-ar_c_atm=np.array(l_c_atm)
+ar_c_atm=np.array(l_p_atm)
 #原子種のリストをarray化
 ar_uni=np.unique(ar_c_atm)
 #原子のリストのユニークな要素を取り出し
@@ -264,96 +417,42 @@ class Products:
         #Molオブジェクトを生成
         self.SmtrBnd()
         self.SplitComp()
+        l_mols=[]
+        l_smiles=[]
         for Comp in self.l_comp:
             Comp.GenMol()
+            l_mols.append(Comp.cmol)
+            l_smiles.append(Chem.MolToSmiles(Comp.cmol))
+        arg_s=np.argsort(l_smiles)
+        self.ar_mols=np.array(l_mols)[arg_s]
+        self.ar_smiles=np.array(l_smiles)[arg_s]
+        self.str_smiles=''
+        for smile in self.ar_smiles:
+            self.str_smiles+=' '+smile
+        
     def Dispmols(self):
         self.GenMols()
-        for Comp in self.l_comp:
-            disp100mol(Comp.cmol)
-            print(Chem.MolToSmiles(Comp.cmol))
+        Conc_h_mols(self.ar_mols)
+        print(self.str_smiles)
 
 
-p_t=Products(l_p_atm,ar_bond_can[5],l_vlc)
-p_t.Dispmols()
+arg_s=np.argsort(p_t.l_smiles)
+np.array(p_t.l_mols)[arg_s]
 
-# +
-l_p_atm=['C','H','H','H','H']
+print(p_t.l_comp[0].strMolB())
 
-l_mb=[]
-l_b=[[0,0,1],[0,1,0],[1,0,0]]
-n_hs=len(l_b)
-l_hb=list(itertools.combinations_with_replacement(l_b, n_hs))
-for j in range(len(l_hb)):
-    l_hb_p=[]
-    for i in range(n_hs):
-        l_1hb=l_hb[j][i].copy()
-        l_1hb.insert(i+1,0)
-        l_hb_p.append(l_1hb)
-    m_bh=np.array(l_hb_p)
-    v_b_c=np.insert(m_bh[:,0],0,0)
-    #炭素のarrayを作る
-    m_b=np.concatenate([v_b_c[np.newaxis,:],m_bh],axis=0)
-    #炭素のarrayと水素のarrayを結合
-    if(np.all(m_b==m_b.T)):
-        m_b[0,0]=4-m_b[0,:].sum()
-        l_mb.append(m_b)
 
-l_p_comp=[]
-n_p_comb=0
-for m_p_b in l_mb:
-    for i in range(m_p_b.shape[0]):
-        for j in range(m_p_b.shape[1]):
-            if i>j:
-                m_p_b[i,j]=m_p_b[j,i]
 
-    d_atom = {}
-    #どの原子がどの原子群に属しているかという辞書
-    d_comp={}
-    #原子群ごとにどの原子が属しているかという辞書
-    d_lt={}
-    comp_c=0
-    for i in range(m_p_b.shape[0]):
-        for j in range(i+1,m_p_b.shape[1]):
-            if(m_p_b[i,j]==0):
-                continue
-            if i not in d_atom.keys():
-                if j not in d_atom.keys():
-                    d_atom[i]=comp_c
-                    d_atom[j]=comp_c
-                    d_comp[comp_c]=Compound([i,j],l_p_atm,m_p_b)
-                    comp_c+=1
-                    #i,ｊを新しく原子群に追加
-                else:
-                    d_atom[i]=d_atom[j]
-                    d_comp[d_atom[j]].addatm(i)
-                    #iをｊの属している原子群に
-            else:
-                if j not in d_atom.keys():
-                    d_atom[j]=d_atom[i]
-                    d_comp[d_atom[i]].addatm(j)
-                    #iをｊの属している原子群に
-                else:
-                    if(d_atom[i]<d_atom[j]):
-                        Comp=d_comp.pop(d_atom[j])
-                        #つながっているとわかった原子群をpopで取り出す
-                        d_comp[d_atom[i]].exatms(Comp.l_atm)
-                        #番号の若い方に追加
-                        for atm_num in Comp.l_atm:
-                            d_atom[atm_num]=d_atom[i]
-                            #つながっているわかった原子群の属する原子群を若い方に更新
-                    elif(d_atom[i]>d_atom[j]):
-                        Comp=d_comp.pop(d_atom[i])
-                        #つながっているとわかった原子群をpopで取り出す
-                        d_comp[d_atom[j]].exatms(Comp.l_atm)
-                        #番号の若い方に追加
-                        for atm_num in Comp.l_atm:
-                            d_atom[atm_num]=d_atom[j]
-    print('組み合わせ:'+str(n_p_comb))
-    for k in d_comp:
-        c=d_comp[k]
-        c.GenMol()
-        disp100mol(c.cmol)
-    print()
-    
-    l_p_comp.append(d_comp.copy())
-    n_p_comb+=1
+l_l_smiles=[]
+comb_c=0
+for i in range(ar_bond_can.shape[0]):
+    p_t=Products(l_p_atm,ar_bond_can[i],l_vlc)
+    p_t.GenMols()
+#     print(p_t.str_smiles)
+    if p_t.str_smiles not in l_l_smiles:
+        print('組み合わせ:'+str(comb_c))
+        l_l_smiles.append(p_t.str_smiles)
+        p_t.Dispmols()
+        comb_c+=1
+
+

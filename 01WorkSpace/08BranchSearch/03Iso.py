@@ -178,12 +178,14 @@ CP_t=CombProducts(l_p_atm)
 CP_t.DispComb()
 
 # +
-b_exist_atm=True
+b_exist_atm=False
+b_exist_rad=False
 d_atm2vlc={'C':4,'H':1,'F':1,'O':2,'N':3}
 
 
-# l_p_atm=['C','F','O','N','H']
-l_p_atm=['C','C','C','C']
+# l_p_atm=['C','F','H','H','H']
+# l_p_atm=['C','C','C','C']
+l_p_atm=['C','C','C','C','H','H','H','H']
 l_vlc=[]
 for atm in l_p_atm:
     l_vlc.append(d_atm2vlc[atm])
@@ -232,6 +234,9 @@ for i in range(ar_bond_p.shape[0]):
             
 ar_b_cons=ar_bond_p.sum(axis=1)<=np.array(l_vlc)
 #結合数が原子価以下のものをbooleanとして抽出
+if(not(b_exist_rad)):
+    #ラジカルの存在を許さない場合
+    ar_b_cons=ar_bond_p.sum(axis=1)==np.array(l_vlc)
 ar_b_ind=np.all(ar_b_cons,axis=1)
 #すべての原子が、結合数が原子価以下であったらその隣接行列は整合性があると判断する
 #その整合性のあるもののindex
@@ -239,11 +244,18 @@ ar_b_ind=np.all(ar_b_cons,axis=1)
 if(not(b_exist_atm)):
     ar_b_atm=np.all(ar_bond_p.sum(axis=1)!=0,axis=1)
     ar_b_ind=np.logical_and(ar_b_atm,ar_b_ind)
+ar_b_c=(np.logical_not(ar_bond_p[:,1,0]>0 & (np.all(ar_bond_p[:,2,:2]>0,axis=1)) & (np.all(ar_bond_p[:,3,:3]>0,axis=1))))
+ar_b_ind=ar_b_ind&ar_b_c
 ar_bond_cons=ar_bond_p[ar_b_ind]
 #整合性のあるもののみ取り出す。
 
 ar_bond_cons[:3]
 # -
+
+ar_bond_p.shape
+(np.all(ar_bond_p[:,2,:2]>0,axis=1)).shape
+
+(np.logical_not(ar_bond_p[:,1,0]>0 & (np.all(ar_bond_p[:,2,:2]>0,axis=1)) & (np.all(ar_bond_p[:,3,:3]>0,axis=1)))).shape
 
 b_exist_atm=False
 
@@ -462,6 +474,13 @@ class Products:
 
 p_t=Products(l_p_atm,ar_bond_can[i],l_vlc)
 p_t.SplitComp()
+p_t.l_comp[0].calcAd()
+t_MolB=p_t.l_comp[0].strMolB()
+print(t_MolB)
+Chem.MolFromMolBlock(t_MolB)
+p_t.l_comp[0].m_adm
+
+
 
 l_l_smiles=[]
 comb_c=0
